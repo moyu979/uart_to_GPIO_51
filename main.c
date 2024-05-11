@@ -1,15 +1,14 @@
-#include<REG51.h>
+#include"reg52.h"
 
 #define FUNMASK 0xF0
 #define PINMASK 0x0F
+#define PINNUMBER 0x07
 #define GROUPMASK 0x08
 
 unsigned char FIRST;
 unsigned char SECOND;
 
 unsigned char RET;
-
-sbit sP[][] = {P1^0,P1^1,P1^2,P1^3,P1^4,P1^5,P1^6,P1^7,P2^0,P2^1,P2^2,P2^3,P2^4,P2^5,P2^6,P2^7};
 
 void UART_Read_init(){
     EA=1;//总中断开
@@ -37,7 +36,11 @@ void UART_Read(void) interrupt 4 using 1{
     {
     //查看某个GPIO引脚的值
     case 0x10:
-        RET=sP[FIRST & PINMASK]?0x01:0x00;
+        if(FIRST&GROUPMASK){
+            RET=P2^(FIRST&PINNUMBER);
+        }else{
+            RET=P1^(FIRST&PINNUMBER);
+        }
         break;
     //查看某组GPIO的值
     case 0x20:
@@ -48,21 +51,37 @@ void UART_Read(void) interrupt 4 using 1{
         }
         break;
     //写入某个GPIO
-    case 0x40:
-        sp[FIRST & PINMASK]=SECOND?1:0;
-        break;
-    //将某个GPIO与数据进行与操作
-    case 0x50:
-        sp[FIRST & PINMASK]=(sp[FIRST & PINMASK])&(SECOND?1:0);
-        break;
-    //将某个GPIO与数据进行或操作
-    case 0x60:
-        sp[FIRST & PINMASK]=(sp[FIRST & PINMASK])|(SECOND?1:0);
-        break;
-    //将某个GPIO与数据进行异或操作
-    case 0x70:
-        sp[FIRST & PINMASK]=(sp[FIRST & PINMASK])^(SECOND?1:0);
-        break;
+    // case 0x40:
+    //     if(FIRST&GROUPMASK){
+    //         P2^(FIRST&PINNUMBER)=SECOND?1:0;
+    //     }else{
+    //         P1^(FIRST&PINNUMBER)=SECOND?1:0;
+    //     }
+    //     break;
+    // //将某个GPIO与数据进行与操作
+    // case 0x50:
+    //     if(FIRST&GROUPMASK){
+    //         P2^(FIRST&PINNUMBER)=(P2^(FIRST&PINNUMBER))&(SECOND?1:0);
+    //     }else{
+    //         P1^(FIRST&PINNUMBER)=(P1^(FIRST&PINNUMBER))&(SECOND?1:0);
+    //     }
+    //     break;
+    // //将某个GPIO与数据进行或操作
+    // case 0x60:
+    //     if(FIRST&GROUPMASK){
+    //         P2^(FIRST&PINNUMBER)=(P2^(FIRST&PINNUMBER))|(SECOND?1:0);
+    //     }else{
+    //         P1^(FIRST&PINNUMBER)=(P1^(FIRST&PINNUMBER))|(SECOND?1:0);
+    //     }
+    //     break;
+    // //将某个GPIO与数据进行异或操作
+    // case 0x70:
+    //     if(FIRST&GROUPMASK){
+    //         P2^(FIRST&PINNUMBER)=(P2^(FIRST&PINNUMBER))^(SECOND?1:0);
+    //     }else{
+    //         P1^(FIRST&PINNUMBER)=(P1^(FIRST&PINNUMBER))^(SECOND?1:0);
+    //     }
+    //     break;
     //写入某组GPIO
     case 0x80:
         if(FIRST & GROUPMASK){
