@@ -62,19 +62,23 @@ void UART_Read(void) interrupt 4 using 1{
                         //置0
 						if(SECOND==0){
                             P2=P2&(~position[FIRST&PINNUMBER]);
+                            RET=P2;
                         }
                         //置1
                         else{
                             P2=P2|position[FIRST&PINNUMBER];
+                            RET=P2;
                         }
                     }else{
                         //置0
 						if(SECOND==0){
                             P1=P1&(~position[FIRST&PINNUMBER]);
+                            RET=P1;
                         }
                         //置1
                         else{
                             P1=P1|position[FIRST&PINNUMBER];
+                            RET=P1;
                         }
                     }
                     break;
@@ -84,19 +88,23 @@ void UART_Read(void) interrupt 4 using 1{
                         //与0
                         if(SECOND==0){
                             P2=P2&(~position[FIRST&PINNUMBER]);
+                            RET=P2;
                         }
                         //与1
                         else{
                             P2=P2|position[FIRST&PINNUMBER];
+                            RET=P2;
                         }
                     }else{
                         //与0
                         if(SECOND==0){
                             P1=P1&(~position[FIRST&PINNUMBER]);
+                            RET=P1;
                         }
                         //与1
                         else{
                             P1=P1|position[FIRST&PINNUMBER];
+                            RET=P1;
                         }
                     }
                     break;
@@ -105,21 +113,23 @@ void UART_Read(void) interrupt 4 using 1{
                     if(FIRST&GROUPMASK){
                         //或0
                         if(SECOND==0){
-                            ;//或0不变就行
+                            RET=P2;//或0不变就行
                         }
                         //或1
                         else{
                             P2=P2|position[FIRST&PINNUMBER];//或1相当于置1
+                            RET=P2;
                         }
                         
                     }else{
                         //或0
                         if(SECOND==0){
-                            ;//或0不变就行
+                            RET=P1;//或0不变就行
                         }
                         //或1
                         else{
                             P1=P1|position[FIRST&PINNUMBER];//或1相当于置1
+                            RET=P1;
                         }
                     }
                     break;
@@ -131,15 +141,17 @@ void UART_Read(void) interrupt 4 using 1{
                 case 0x70:
                     if(FIRST&GROUPMASK){
                         if(SECOND==0){
-                            ;
+                            RET=P2;
                         }else{
                             P2=P2^position[FIRST&PINNUMBER];
+                            RET=P2;
                         }
                     }else{
                         if(SECOND==0){
-                            ;
+                            RET=P1;
                         }else{
                             P1=P1^position[FIRST&PINNUMBER];
+                            RET=P1;
                         }
                     }
                     break;
@@ -147,34 +159,61 @@ void UART_Read(void) interrupt 4 using 1{
                 case 0x80:
                     if(FIRST & GROUPMASK){
                         P2=SECOND;
+                        RET=P2;
                     }else{
                         P1=SECOND;
+                        RET=P1;
                     }
                     break;
                 //将某组GPIO与数据进行与操作
                 case 0x90:
                     if(FIRST & GROUPMASK){
                         P2=P2&SECOND;
+                        RET=P2;
                     }else{
                         P1=P1&SECOND;
+                        RET=P1;
                     }
                     break;
                 //将某组GPIO与数据进行或操作
                 case 0xa0:
                     if(FIRST & GROUPMASK){
                         P2=P2|SECOND;
+                        RET=P2;
                     }else{
                         P1=P1|SECOND;
+                        RET=P1;
                     }
                     break;
                 //将某组GPIO与数据进行异或操作
                 case 0xb0:
                     if(FIRST & GROUPMASK){
                         P2=P2^SECOND;
+                        RET=P2;
                     }else{
                         P1=P1^SECOND;
+                        RET=P1;
                     }
                     break;
+                //全体反转
+                case 0x30:
+                    if(FIRST & GROUPMASK){
+                        P2=~P2;
+                        RET=P2;
+                    }else{
+                        P1=~P1;
+                        RET=P1;
+                    }
+                    break
+                //单位反转
+                case 0x00:
+                    if(FIRST & GROUPMASK){
+                        P2=P2^position[FIRST&PINNUMBER];
+                        RET=P2;
+                    }else{
+                        P1=P1^position[FIRST&PINNUMBER];
+                        RET=P1;
+                    }
                 default:
                     break;
             }
